@@ -9,6 +9,8 @@ inputs:
 outputs:
   time: # id of output
     description: 'The time we greeted you'
+  py_out:
+    description: 'Whatever the script decides to tell you'
 runs:
   using: 'docker'
   image: 'Dockerfile'
