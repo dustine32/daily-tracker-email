@@ -1,7 +1,7 @@
 #!/bin/sh -l
 
 python3 --version
-py_out=$(python3 test_main.py)
+py_out=$(python3 test_main.py $1)
 echo "Hello $1"
 time=$(date)
 echo "::set-output name=time::$time"
