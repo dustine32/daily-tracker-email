@@ -1,21 +1,20 @@
 on: [push]
 
 jobs:
-  hello_world_job:
+  query_recent_issues:
     runs-on: ubuntu-latest
-    name: A job to say hello
+    name: A job to query for recent issues
     steps:
     # To use this repository's private action,
     # you must check out the repository
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Hello world action step
-      id: hello
+    - name: Query recent issues
+      id: issue_query
       uses: ./ # Uses an action in the root directory
       with:
-        who-to-greet: 'D-man'
-    # Use the output from the `hello` step
-    - name: Get the output time
-      run: |
-        echo "The time was ${{ steps.hello.outputs.time }}"
-        echo "What the python gave me was '${{ steps.hello.outputs.py_out }}'"
+        repo_name: 'geneontology/go-ontology'
+        duration_in_days: 1
+    # Use the output from the `issue_query` step
+    - name: Get the issue list email body
+      run: echo "'${{ steps.issue_query.outputs.py_out }}'"

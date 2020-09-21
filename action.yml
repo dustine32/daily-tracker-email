@@ -1,18 +1,21 @@
 # action.yml
-name: 'Hello World'
-description: 'Greet someone and record the time'
+name: 'Query recent issues'
+description: 'Query recent issues and construct summary email body'
 inputs:
-  who-to-greet:  # id of input
-    description: 'Who to greet'
+  repo_name:  # id of input
+    description: 'Repository containing issues to report'
     required: true
-    default: 'World'
+    default: 'geneontology/go-ontology'
+  duration_in_days:
+    description: 'Number of days to look back for new or updated issues'
+    required: true
+    default: 1
 outputs:
-  time: # id of output
-    description: 'The time we greeted you'
-  py_out:
-    description: 'Whatever the script decides to tell you'
+  issue_email_body:
+    description: 'Body of issue list email to send'
 runs:
   using: 'docker'
   image: 'Dockerfile'
   args:
-    - ${{ inputs.who-to-greet }}
+    - ${{ inputs.repo_name }}
+    - ${{ inputs.duration_in_days }}
