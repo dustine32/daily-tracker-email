@@ -17,4 +17,4 @@ jobs:
         duration_in_days: 1
     # Use the output from the `issue_query` step
     - name: Get the issue list email body
-      run: echo "'${{ steps.issue_query.outputs.issue_email_body }}'"
+      run: echo "'${{ "steps.issue_query.outputs.issue_email_body" }}'"
