@@ -5,6 +5,6 @@ python3 -m venv env
 . env/bin/activate
 pip install -r requirements.txt
 
-py_out=$(python3 main.py $1 $2)
+issue_email_body=$(python3 main.py $1 $2)
 
-echo "::set-output name=py_out::$py_out"
+echo "::set-output name=issue_email_body::$issue_email_body"
