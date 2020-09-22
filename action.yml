@@ -2,10 +2,6 @@
 name: 'Query recent issues'
 description: 'Query recent issues and construct summary email body'
 inputs:
-  repo_name:  # id of input
-    description: 'Repository containing issues to report'
-    required: true
-    default: 'geneontology/go-ontology'
   duration_in_days:
     description: 'Number of days to look back for new or updated issues'
     required: true
@@ -17,5 +13,5 @@ runs:
   using: 'docker'
   image: 'Dockerfile'
   args:
-    - ${{ inputs.repo_name }}
+    - ${{ github.repository }}
     - ${{ inputs.duration_in_days }}
