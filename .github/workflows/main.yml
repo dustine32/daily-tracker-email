@@ -13,6 +13,7 @@ jobs:
       id: issue_query
       uses: ./ # Uses an action in the root directory
       with:
+        repo_name: ${{ github.repository }}
         duration_in_days: 1
     # Use the output from the `issue_query` step
     - name: Get the issue list email body
