@@ -93,6 +93,6 @@ if __name__ == "__main__":
     msg["From"] = "go-admin@usc.edu"
     msg["To"] = "debert@usc.edu"
 
-    s = smtplib.SMTP('email.usc.edu')
+    s = smtplib.SMTP('email.usc.edu', port=587)
     s.send_message(msg)
     s.quit()
