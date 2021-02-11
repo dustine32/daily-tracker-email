@@ -3,6 +3,8 @@ import requests
 import json
 import datetime
 import argparse
+import smtplib
+from email.message import EmailMessage
 
 parser = argparse.ArgumentParser()
 parser.add_argument('repo_name')
@@ -21,25 +23,34 @@ def make_html_safe(s):
 
 def print_single_issue(issue):
     line = f"<li><a href=\"{issue['html_url']}\">{issue['number']}</a> {make_html_safe(issue['title'])}</li>"
-    print(line)
+    return line
 
 
 def print_issues(issues, event_type: str, printed_ids: set):
     to_prints = []
     printed_count = 0
+    text_output = ""
+    ul_open = "<ul>"
+    ul_close = "</ul>"
     for issue in issues:
         if issue["number"] not in printed_ids:
             to_prints.append(issue)
             printed_count += 1
             printed_ids.add(issue["number"])
-    print(f"<h3>{event_type} Tickets</h3>")
+    event_header = f"<h3>{event_type} Tickets</h3>"
+    text_output = add_to_body(text_output, event_header)
     if printed_count > 0:
-        print(f"There are {printed_count} {event_type.lower()} tickets.")
-        print("<ul>")
+        ticket_count_header = f"There are {printed_count} {event_type.lower()} tickets."
+        text_output = add_to_body(text_output, ticket_count_header)
+        text_output = add_to_body(text_output, ul_open)
         [print_single_issue(i) for i in to_prints]
-        print("</ul>")
+        for i in to_prints:
+            text_output = add_to_body(text_output, print_single_issue(i))
+        text_output = add_to_body(text_output, ul_close)
     else:
-        print(f"<p>There have been no {event_type.lower()} tickets.</p>")
+        ticket_count_header = f"<p>There have been no {event_type.lower()} tickets.</p>"
+        text_output = add_to_body(text_output, ticket_count_header)
+    return text_output
 
 
 def get_issues(repo: str, event_type: str, start_date: str):
@@ -53,6 +64,11 @@ def get_issues(repo: str, event_type: str, start_date: str):
         raise Exception(f"HTTP error status code: {resp.status_code} for url: {url}")
 
 
+def add_to_body(current_body: str, text_to_add: str):
+    current_body = "{}\n{}".format(current_body, text_to_add)
+    return current_body
+
+
 if __name__ == "__main__":
     # repo = "geneontology/go-ontology"
     # repo = "geneontology/amigo"
@@ -60,10 +76,23 @@ if __name__ == "__main__":
     today = datetime.date.today()
     yesterday = today - datetime.timedelta(int(args.duration_in_days))
 
+    body = ""
+
     new_issues = get_issues(args.repo_name, "created", yesterday)
     updated_issues = get_issues(args.repo_name, "updated", yesterday)
 
-    print(f"<h2>Summary for tickets from {yesterday} to {today}</h2>")
+    summary_header = f"<h2>Summary for tickets from {yesterday} to {today}</h2>"
+    body = add_to_body(body, summary_header)
     ids = set()
-    print_issues(new_issues, "New", ids)
-    print_issues(updated_issues, "Updated", ids)
+    body = add_to_body(body, print_issues(new_issues, "New", ids))
+    body = add_to_body(body, print_issues(updated_issues, "Updated", ids))
+
+    msg = EmailMessage()
+    msg.set_content(body)
+    msg["Subject"] = "GitHub {} Tracker Update".format(args.repo_name)
+    msg["From"] = "go-admin@usc.edu"
+    msg["To"] = "debert@usc.edu"
+
+    s = smtplib.SMTP('email.usc.edu')
+    s.send_message(msg)
+    s.quit()
